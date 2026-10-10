@@ -1,0 +1,35 @@
+name: Update Tenders Webpage
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Subah 8 Baje Pakistan Time
+  workflow_dispatch: # Manually chalane ke liye button
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Scraper and Generate HTML
+        run: python scraper.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Auto-updated daily tenders report" || exit 0
+          git push
